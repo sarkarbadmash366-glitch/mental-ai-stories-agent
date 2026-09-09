@@ -1,0 +1,27 @@
+{
+  "brand": "Mental AI Stories",
+  "niche": "viral AI vegetable stories",
+  "language": "Urdu",
+  "scene_duration_seconds": 8,
+  "aspect_ratio": "9:16",
+  "viral_threshold": 70,
+  "score_weights": {
+    "hook": 25,
+    "curiosity": 20,
+    "emotion_comedy": 20,
+    "shareability": 15,
+    "trend_fit": 10,
+    "production_ease": 10
+  },
+  "character_rules": [
+    "Full human-like body is allowed.",
+    "Head/face must remain 100% vegetable/fruit.",
+    "Eyes, nose and mouth must be on the vegetable surface.",
+    "Never use human faces or human heads.",
+    "No realistic human skin.",
+    "No human background characters.",
+    "Preserve clothing, colors, proportions and environment across scenes.",
+    "Use previous scene frames as continuity references when supported by the video provider.",
+    "Natural vegetable mouth movement for dialogue; no human lip replacement."
+  ]
+}
