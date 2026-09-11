@@ -4,93 +4,311 @@ const CHARACTER = {
   name: 'Aloo',
   vegetable: 'potato',
   body: 'full human-like cartoon body',
-  face: '100% potato-shaped head; eyes, nose and mouth embedded on potato surface',
+  face: '100% potato-shaped head; eyes, nose and mouth embedded naturally on potato surface',
   clothes: 'simple village kurta shalwar',
   colors: 'natural potato brown + off-white clothing'
 };
 
-const seeds = [
-  {
-    title: 'Aloo Ne Bijli Ka Bill Dekha',
-    hook: 'Aloo bill kholta hai… aur amount dekh kar uski aankhen khul jaati hain.',
-    factors: [24,18,19,14,8,9],
-    reason: 'Relatable household problem + instant comedy + strong visual reaction.'
-  },
-  {
-    title: 'Aloo Ko Lottery Mil Gayi',
-    hook: 'Aloo ko pata chalta hai ke uski purani ticket jackpot jeet chuki hai.',
-    factors: [23,19,18,15,8,8],
-    reason: 'Money surprise creates curiosity and a clear payoff.'
-  },
-  {
-    title: 'Tamatar Ne Shaadi Mein Dhoka De Diya',
-    hook: 'Tamatar shaadi ke stage par kisi aur ke saath nazar aa jata hai.',
-    factors: [22,20,20,15,7,7],
-    reason: 'Relationship twist + emotional comedy, but needs careful family-safe execution.'
-  },
-  {
-    title: 'Pyaz Ka Aakhri Raaz',
-    hook: 'Pyaz sab ko kehta hai ke uske paas ek aisa raaz hai jo poori sabzi mandi badal dega.',
-    factors: [21,22,18,14,7,8],
-    reason: 'Mystery hook encourages viewers to stay for the reveal.'
-  },
-  {
-    title: 'Kheera Bana Mohallay Ka Hero',
-    hook: 'Kheera ek chhoti si mushkil mein sab ko bachane ka faisla karta hai.',
-    factors: [20,18,19,16,8,9],
-    reason: 'Hero transformation is easy to visualize and family friendly.'
+function cleanJson(text) {
+  let value = text.trim();
+
+  if (value.startsWith('```')) {
+    value = value.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
   }
-];
 
-function scoreIdea(x) {
-  return x.factors.reduce((a,b) => a+b, 0);
+  const first = value.indexOf('[');
+  const last = value.lastIndexOf(']');
+
+  if (first !== -1 && last !== -1) {
+    value = value.slice(first, last + 1);
+  }
+
+  return JSON.parse(value);
 }
 
-function promptFor(scene, dialogue) {
-  return `9:16 vertical, high-end cinematic 3D cartoon animation, consistent Indian/South Asian village vegetable world. ${CHARACTER.name} is an anthropomorphic potato with a FULL human-like body but a HEAD/FACE that is 100% potato, never human. Potato texture and irregular potato silhouette remain visible. Eyes, nose and mouth are embedded naturally on the potato surface. Natural vegetable mouth movement only. ${CHARACTER.name} wears ${CHARACTER.clothes}; preserve exact clothing, colors, proportions and face design. Scene action: ${scene}. Dialogue/narration: ${dialogue}. Warm cinematic lighting, expressive comedy, clean family-friendly composition, detailed environment. NO human faces, NO human heads, NO realistic human skin, NO human background characters, NO character morphing, NO redesign, NO text, NO subtitles.`;
-}
+async function askOpenAI(prompt, useWebSearch = false) {
+  const apiKey = process.env.OPENAI_API_KEY;
 
-function buildProject(idea) {
-  const scenes = [
-    { number:1, action:'Aloo ghar ke darwaze par bijli ka bill uthata hai aur camera uske shocked potato face par push-in karta hai.', dialogue:'آلو نے بجلی کا بل دیکھا تو اس کے ہوش اڑ گئے۔' },
-    { number:2, action:'Aloo bill ko dobara dekhta hai, phir apni jeb check karta hai.', dialogue:'وہ بولا، اتنے پیسے تو میرے پاس ہیں ہی نہیں۔' },
-    { number:3, action:'Aloo calculator nikalta hai aur bill ki rakam dobara calculate karta hai.', dialogue:'آلو نے حساب لگایا، مگر رقم پھر بھی اتنی ہی تھی۔' },
-    { number:4, action:'Aloo pareshan hokar ghar ke andar chalta hai.', dialogue:'اس نے سوچا، اب یہ بل کون بھرے گا؟' },
-    { number:5, action:'Aloo ko achanak yaad aata hai ke pichle mahine ghar mein fan poori raat chalta raha tha.', dialogue:'پھر اسے پچھلے مہینے کی اپنی غلطی یاد آ گئی۔' },
-    { number:6, action:'Aloo sharminda expression ke saath fan ki taraf dekhta hai.', dialogue:'وہ بولا، غلطی میری تھی، بل بھی مجھے ہی بھرنا ہوگا۔' },
-    { number:7, action:'Aloo family-style vegetable household mein energy-saving ka plan banata hai.', dialogue:'آلو نے فیصلہ کیا، اب بجلی ضائع نہیں کرے گا۔' },
-    { number:8, action:'Aloo camera ki taraf dekh kar serious-comedy expression deta hai.', dialogue:'اور اگلا بل دیکھنے سے پہلے، پنکھا بند کرنا سیکھ گیا۔' }
-  ].map(s => ({...s, prompt: promptFor(s.action, s.dialogue)}));
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is missing in Vercel Environment Variables.');
+  }
 
-  return {
-    title: idea.title,
-    hook: idea.hook,
-    story: 'آلو کو اچانک بجلی کا بل ملتا ہے۔ رقم دیکھ کر وہ گھبرا جاتا ہے، حساب کرتا ہے، اپنی پچھلی لاپرواہی یاد کرتا ہے اور آخر میں فیصلہ کرتا ہے کہ اب بجلی ضائع نہیں کرے گا۔ کہانی کا مزاح اس کے بڑھتے ہوئے صدمے اور آخری سبق میں ہے۔',
-    characterLock: CHARACTER,
-    scenes,
-    seo: {
-      title: 'Aloo Ne Bijli Ka Bill Dekha 😂 | Funny Vegetable Story',
-      description: 'Aloo ko jab bijli ka bill mila to uska reaction dekh kar aap bhi hans parenge 😂 Family-friendly funny AI vegetable story.',
-      hashtags: ['#Aloo','#VegetableStory','#FunnyStory','#AIAnimation','#Shorts'],
-      tags: ['aloo story','funny vegetable story','ai vegetable animation','urdu funny story','potato cartoon','viral shorts','ai story']
-    }
+  const body = {
+    model: 'gpt-5.6-luna',
+    input: prompt
   };
+
+  if (useWebSearch) {
+    body.tools = [
+      {
+        type: 'web_search'
+      }
+    ];
+  }
+
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.error?.message || 'OpenAI API request failed.'
+    );
+  }
+
+  return data.output_text || '';
+}
+
+async function generateIdeas() {
+  const prompt = `
+You are the VIRAL TREND HUNTER for a Pakistani AI vegetable story channel.
+
+Channel niche:
+- Viral AI vegetable stories
+- Anthropomorphic vegetables
+- Urdu/Roman Urdu audience
+- YouTube Shorts, TikTok and Facebook Reels
+- Adult-feel entertainment, comedy, mystery, emotion and twists
+- NOT children's nursery stories
+
+Search the current web for recent viral topics, conversations, situations,
+memes, entertainment patterns, relatable problems and story concepts.
+
+Do NOT copy another creator's exact story.
+Instead, use current trends as inspiration and create ORIGINAL vegetable-story concepts.
+
+Focus on ideas that can become highly clickable 45-60 second videos.
+
+For every idea give:
+1. title
+2. hook
+3. trend or current topic behind the idea
+4. why viewers will watch
+5. viral score from 0-100
+
+Return ONLY valid JSON array.
+No markdown.
+No explanation outside JSON.
+
+Format:
+[
+  {
+    "title": "...",
+    "hook": "...",
+    "trend": "...",
+    "reason": "...",
+    "score": 85
+  }
+]
+
+Give exactly 5 ideas.
+`;
+
+  const text = await askOpenAI(prompt, true);
+
+  let ideas;
+
+  try {
+    ideas = cleanJson(text);
+  } catch {
+    throw new Error('AI returned invalid idea data.');
+  }
+
+  return ideas
+    .filter(x => x.title && x.hook)
+    .sort((a, b) => Number(b.score) - Number(a.score));
+}
+
+async function buildStory(idea) {
+  const prompt = `
+You are the STORY WRITER and SCENE DIRECTOR for a viral AI vegetable
+animation channel.
+
+Selected idea:
+Title: ${idea.title}
+Hook: ${idea.hook}
+Trend: ${idea.trend || 'current viral topic'}
+Reason: ${idea.reason || ''}
+
+Create a complete original Urdu story for a 45-60 second video.
+
+IMPORTANT CHARACTER LOCK:
+- Main character is Aloo.
+- Aloo has a FULL human-like cartoon body.
+- Aloo's head/face must remain 100% potato.
+- Eyes, nose and mouth are embedded on the potato surface.
+- NEVER turn Aloo into a human.
+- NEVER give Aloo a human head or human skin.
+- Keep exact clothing, body proportions and potato appearance consistent.
+- No random human characters.
+- Other vegetables can appear, but their heads must remain actual vegetables.
+
+STYLE:
+- Cinematic 3D animation
+- South Asian vegetable world
+- Funny, emotional or suspenseful
+- Strong first 2-second hook
+- Clear escalation
+- Twist or satisfying payoff
+- No unnecessary dialogue
+- Urdu dialogue/narration
+
+Create exactly 8 scenes.
+Each scene must be approximately 8 seconds.
+
+Return ONLY valid JSON.
+No markdown.
+No explanation outside JSON.
+
+Format:
+{
+  "title": "...",
+  "hook": "...",
+  "story": "...",
+  "scenes": [
+    {
+      "number": 1,
+      "action": "...",
+      "dialogue": "..."
+    }
+  ],
+  "seo": {
+    "title": "...",
+    "description": "...",
+    "hashtags": ["..."],
+    "tags": ["..."]
+  }
+}
+`;
+
+  const text = await askOpenAI(prompt, false);
+
+  let project;
+
+  try {
+    const first = text.indexOf('{');
+    const last = text.lastIndexOf('}');
+
+    if (first === -1 || last === -1) {
+      throw new Error('No JSON object found.');
+    }
+
+    project = JSON.parse(text.slice(first, last + 1));
+  } catch {
+    throw new Error('AI returned invalid story data.');
+  }
+
+  project.characterLock = CHARACTER;
+
+  project.scenes = (project.scenes || []).map(scene => ({
+    ...scene,
+    prompt: makeScenePrompt(scene)
+  }));
+
+  return project;
+}
+
+function makeScenePrompt(scene) {
+  return `
+9:16 vertical cinematic 3D cartoon animation.
+
+CHARACTER LOCK:
+Aloo is an anthropomorphic potato.
+FULL human-like cartoon body.
+HEAD AND FACE MUST BE 100% REAL POTATO SHAPE.
+Potato texture and irregular potato silhouette must remain clearly visible.
+Eyes, nose and mouth are embedded naturally into the potato surface.
+Natural vegetable facial movement only.
+
+Clothing:
+simple village kurta shalwar.
+Natural potato brown color.
+Keep exactly the same character design, clothing,
+body proportions and face throughout every scene.
+
+SCENE:
+${scene.action}
+
+URDU DIALOGUE/NARRATION:
+${scene.dialogue}
+
+CONTINUITY:
+This scene must begin exactly where the previous scene ended.
+Preserve character position, clothing, environment,
+lighting and object positions.
+
+VISUAL STYLE:
+high-end cinematic 3D animation,
+South Asian village environment,
+expressive but natural acting,
+detailed environment,
+smooth camera movement,
+strong facial expressions.
+
+NEGATIVE PROMPT:
+human face,
+human head,
+human skin,
+real human character,
+character redesign,
+vegetable becoming human,
+different clothing,
+different potato shape,
+character morphing,
+extra characters,
+text,
+subtitles,
+watermark,
+logo.
+`;
 }
 
 export async function POST(req) {
   try {
     const body = await req.json();
+
     if (body.action === 'ideas') {
-      const ideas = seeds
-        .map(x => ({...x, score: scoreIdea(x)}))
-        .sort((a,b) => b.score-a.score);
-      return NextResponse.json({ideas});
+      const ideas = await generateIdeas();
+
+      return NextResponse.json({
+        success: true,
+        ideas
+      });
     }
+
     if (body.action === 'build') {
-      return NextResponse.json({project: buildProject(body.idea)});
+      const project = await buildStory(body.idea);
+
+      return NextResponse.json({
+        success: true,
+        project
+      });
     }
-    return NextResponse.json({error:'Unknown action'}, {status:400});
-  } catch (e) {
-    return NextResponse.json({error:e.message}, {status:500});
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unknown action'
+      },
+      { status: 400 }
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || 'Something went wrong.'
+      },
+      { status: 500 }
+    );
   }
-    }
+  }
